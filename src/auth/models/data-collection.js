@@ -5,7 +5,8 @@
 // being the same and requiring their own schema. That's not very DRY!
 
 class Collection {
-  constructor(model) {
+  constructor(name, model) {
+    this.name = name;
     this.model = model;
   }
 
@@ -29,6 +30,15 @@ class Collection {
 
   delete(id) {
     return this.model.destroy({ where: { id: id } });
+  }
+
+  createAssociation(type, model, options) {
+    console.log(type, model, options);
+    try {
+      this.model[type](model, options);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
 

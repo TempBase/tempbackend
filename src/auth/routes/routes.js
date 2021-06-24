@@ -3,7 +3,7 @@
 const express = require('express');
 const authRouter = express.Router();
 
-const { users } = require('../models/index.js');
+const { users, responses } = require('../models/index.js');
 const basicAuth = require('../middleware/basic.js');
 const bearerAuth = require('../middleware/bearer.js');
 const permissions = require('../middleware/acl.js');
@@ -12,6 +12,7 @@ authRouter.post('/signup', async (req, res, next) => {
   try {
     let userRecord = await users.create(req.body);
     const output = {
+      isAuthenticated: true,
       user: userRecord,
       token: userRecord.token
     };
@@ -24,6 +25,7 @@ authRouter.post('/signup', async (req, res, next) => {
 authRouter.post('/signin', basicAuth, (req, res, next) => {
   try {
     const user = {
+      isAuthenticated: true,
       user: req.user,
       token: req.user.token
     };
@@ -34,11 +36,24 @@ authRouter.post('/signin', basicAuth, (req, res, next) => {
   }
 });
 
-authRouter.get('/users', bearerAuth, permissions('delete'), async (req, res, next) => {
+// authRouter.get('/users', bearerAuth, permissions('delete'), async (req, res, next) => {
+//   try {
+//     // console.log('HELLO');
+//     const userRecords = await users.model.findAll({});
+//     const list = userRecords.map(user => user.username);
+//     res.status(200).json(list);
+//   } catch {
+//     next('Error on user list request');
+//   }
+// });
+
+authRouter.get('/response', bearerAuth, permissions('read'), async (req, res, next) => {
   try {
-    const userRecords = await users.findAll({});
-    const list = userRecords.map(user => user.username);
-    res.status(200).json(list);
+    // console.log('HELLO');
+    let id = req.body.id;
+    const userResponse = await responses.model.findOne({where:{id}});
+    // const list = userResponse(response => response.responseQ);
+    res.status(200).json(userResponse);
   } catch {
     next('Error on user list request');
   }
