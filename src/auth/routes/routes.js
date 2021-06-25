@@ -10,6 +10,7 @@ const permissions = require('../middleware/acl.js');
 
 authRouter.post('/signup', async (req, res, next) => {
   try {
+    console.log(req.body);
     let userRecord = await users.create(req.body);
     const output = {
       isAuthenticated: true,
@@ -47,12 +48,21 @@ authRouter.post('/signin', basicAuth, (req, res, next) => {
 //   }
 // });
 
+authRouter.post('/response', bearerAuth, permissions('read'), async (req, res, next) => {
+  try {
+    // console.log(req.body);
+    const userResponse = await responses.model.create(req.body);
+    res.status(200).json(userResponse);
+  } catch {
+    next('Error on user list request');
+  }
+});
+
 authRouter.get('/response', bearerAuth, permissions('read'), async (req, res, next) => {
   try {
-    // console.log('HELLO');
-    let id = req.body.id;
-    const userResponse = await responses.model.findOne({where:{id}});
-    // const list = userResponse(response => response.responseQ);
+    let id = req.body.userId;
+    console.log(id);
+    const userResponse = await responses.model.findOne({ where: { userId: id } });
     res.status(200).json(userResponse);
   } catch {
     next('Error on user list request');
